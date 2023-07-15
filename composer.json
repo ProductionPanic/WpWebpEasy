@@ -1,0 +1,19 @@
+{
+    "name": "production-panic/webp-easy",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "ProductionPanic\\WebpEasy\\": "src/"
+        },
+        "files": [
+            "src/includes/functions.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Freek Attema",
+            "email": "freekattema@live.nl"
+        }
+    ],
+    "require": {}
+}
