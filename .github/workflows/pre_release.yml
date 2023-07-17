@@ -1,0 +1,63 @@
+---
+name: "pre-release"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  pre-release:
+    name: "Pre Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: "Setup node"
+        uses: actions/setup-node@v2
+        with:
+          node-version: '19.x'
+        
+      - name: "Install pnpm"
+        run: |
+          cd ./public/backend
+          npm install -g pnpm
+
+      - name: "Build -> prepare"
+        run: |
+            rm -rf ./vendor ./public/backend/node_modules ./dist            
+
+      - name: "Build -> composer"
+        run: |
+            composer install
+            composer dump-autoload --optimize --no-dev --classmap-authoritative
+
+      - name: "Build -> npm"
+        run: |
+            cd ./public/backend
+            pnpm install
+            pnpm run build
+
+      - name: "Clean up"
+        run: |
+            rm -rf ./public
+
+      - name: "Zip plugin"
+        run: |
+            mkdir webp-easy
+            cp -r ./* ./webp-easy
+            cd ./webp-easy
+            rm -rf ./.github ./webp-easy
+            cd ../
+            zip -r webp-easy.zip ./webp-easy
+
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            webp-easy.zip
