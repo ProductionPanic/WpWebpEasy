@@ -29,3 +29,26 @@ function pp_data(): WebpEasyInfo {
     return new WebpEasyInfo();
 }
 
+function pp_is_rest_api_request() {
+    if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+        // Probably a CLI request
+        return false;
+    }
+
+    $rest_prefix         = trailingslashit( rest_get_url_prefix() );
+    $is_rest_api_request = strpos( $_SERVER['REQUEST_URI'], $rest_prefix ) !== false;
+
+    return apply_filters( 'is_rest_api_request', $is_rest_api_request );
+}
+
+function pp_log($data) {
+    if(!function_exists('is_user_logged_in')) {
+        require_once(ABSPATH . 'wp-includes/pluggable.php');
+    }
+
+    if(!is_admin() || !is_user_logged_in() || !current_user_can('manage_options') || pp_is_rest_api_request()) {
+        return;
+    }
+
+    echo "<script>console.log(" . json_encode($data) . ")</script>";
+}

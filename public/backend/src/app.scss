@@ -1,0 +1,12 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.rounded-pill {
+    border-radius: 50000000px;
+}
+
+.glass_bg {
+    @apply bg-opacity-90;
+    backdrop-filter: blur(10px);
+}

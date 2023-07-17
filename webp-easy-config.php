@@ -8,10 +8,16 @@ class WebpEasyInfo {
     public string $requires_wp="RequiresWP";
     
     private function __construct() {
-        $metadata = get_plugin_metadata( __FILE__ );
-        $keys = array_keys(get_object_vars($this));
-        array_map(fn($key) => $this->$key = $metadata[$key], $keys);
-    }
+        if( ! function_exists('get_plugin_data') ){
+            require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+        }
+        $metadata = get_plugin_data( __DIR__ . '/webp-easy.php' );
+        $this->name = $metadata['Name'];
+        $this->version = $metadata['Version'];
+        $this->title = $metadata['Title'];
+        $this->requires_php = $metadata['RequiresPHP'];
+        $this->requires_wp = $metadata['RequiresWP'];
+    } 
 
     public static function get() {
         return new WebpEasyInfo();
@@ -22,7 +28,7 @@ class WebpEasyInfo {
  */
 define('panic_webp_easy_version', WebpEasyInfo::get()->version);
 // upload dir
-define('panic_webp_easy_webp_dir', wp_upload_dir() . '/webp-easy');
+define('panic_webp_easy_webp_dir', wp_upload_dir()['basedir'] . '/webp-easy');
 define('panic_webp_easy_webp_dir_url', wp_upload_dir()['baseurl'] . '/webp-easy');
 // plugin dir
 define('panic_webp_easy_plugin_dir', plugin_dir_path( __FILE__ ));

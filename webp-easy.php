@@ -7,7 +7,7 @@
  * Author: ProductionPanic
  * Author URI: https://github.com/PanicProduction
  * Requires at least: 5.2
- * Requires PHP: 8.2
+ * Requires PHP: 8.1
  */
 
 // Exit if accessed directly.

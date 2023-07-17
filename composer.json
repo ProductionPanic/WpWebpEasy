@@ -6,7 +6,8 @@
             "ProductionPanic\\WebpEasy\\": "src/"
         },
         "files": [
-            "src/includes/functions.php"
+            "src/includes/functions.php",
+            "src/Backend/init.php"
         ]
     },
     "authors": [
@@ -15,5 +16,7 @@
             "email": "freekattema@live.nl"
         }
     ],
-    "require": {}
+    "require": {
+        "codesvault/howdy-qb": "^1.3"
+    }
 }
