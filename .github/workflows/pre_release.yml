@@ -46,10 +46,17 @@ jobs:
 
       - name: "Zip plugin"
         run: |
+            #get all files and folders in the current directory and store them in a variable for copying
+            CONTENTS=$(ls -A)
+            #create a new directory to copy the files and folders into
             mkdir webp-easy
-            cp -r ./* ./webp-easy
+            #copy all files and folders into the new directory
+            cp -r $CONTENTS ./webp-easy
+            #change into the new directory
             cd ./webp-easy
-            rm -rf ./.github ./webp-easy
+            #remove the .git,.github folders
+            rm -rf ./.github ./.git
+            # finally zip the folder
             cd ../
             zip -r webp-easy.zip ./webp-easy
 
