@@ -4,6 +4,9 @@ namespace ProductionPanic\WebpEasy\Backend;
 
 class WebpConverter {
     private function useFallback(): bool {
+
+        // TODO: fix this method
+        return true;
         // check if the exec function is disabled and if not check if the cwebp binary is available
         if(!function_exists('exec')) {
             return false;
@@ -22,6 +25,7 @@ class WebpConverter {
 
     public function convert($input_path, $output_path, $quality) {
         if(!$this->valid_input($input_path)) {
+            Logging::error('Invalid input path', ['input_path' => $input_path]);
             return false;
         }
         if(!$this->useFallback()) {
@@ -62,15 +66,12 @@ class WebpConverter {
         }
 
 
-        $result = imagewebp($image, $output_path, $quality);
-
-        imagedestroy($image);
-
-        return $result;        
+        return imagewebp($image, $output_path, $quality);     
     }
 
     private function valid_input($input_path) {
         if(!file_exists($input_path)) {
+            Logging::error('Input file does not exist', ['input_path' => $input_path]);
             return false;
         }
 

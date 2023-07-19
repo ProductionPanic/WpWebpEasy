@@ -26,6 +26,7 @@ export default class WebpEasy {
     }
 
     public static get(action: string): Promise<any> {
+        if(!this.restUrl) this.init();
         if (!action.endsWith('/')) action = action.concat('/');
         if (!action.startsWith('/')) action = '/'.concat(action);
         return fetch(`${this.restUrl}${action}`, {

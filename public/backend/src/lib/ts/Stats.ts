@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, type Writable } from "svelte/store";
 import WebpEasy from "./WebpEasy";
 
 export class StatsHandler {
@@ -22,10 +22,16 @@ export class StatsHandler {
         });
     }
 
-    public static get stats(): any {
+    public static get stats(): Writable<{
+        [key: string]: [string, number|string]
+    }> {
         this._has_listeners = true;
-        setTimeout(() => this.getStats(), 1);
+        this.getStats();
         return this._stats;
+    }
+
+    public static updateStats(): void {
+        this.getStats();
     }
 }   
 

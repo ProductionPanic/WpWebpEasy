@@ -2,14 +2,18 @@
 
 namespace ProductionPanic\WebpEasy\Modules;
 use CodesVault\Howdyqb\DB;
+use ProductionPanic\WebpEasy\Backend\Logging;
+use ProductionPanic\WebpEasy\Backend\WebpConverter;
+use ProductionPanic\WebpEasy\Backend\WebpMediaLibrary;
 
 class WebpData {
-    private static string $db_name = 'webp_easy_webpdata';
+    public static string $db_name = 'webp_easy_webpdata';
     private static DB $db;
 
     public readonly int $attachment_id;
     public bool $compressed;
     public string $webp_url;
+    public string $size_urls;
     public string $created_at;
     public string $updated_at;
     
@@ -17,6 +21,9 @@ class WebpData {
     private function __construct() {
     }
 
+    public static function init() {
+        self::init_db();
+    }
     private static function init_db() {
         if(isset(self::$db)) {
            return;
@@ -26,6 +33,7 @@ class WebpData {
             ->column('attachment_id')->bigInt()->unsigned()->required()->primary()
             ->column('compressed')->boolean()->required()
             ->column('webp_url')->text()->required()
+            ->column('size_urls')->text()->required()
             ->column('created_at')->dateTime()->required()
             ->column('updated_at')->dateTime()->required()
             ->index(['attachment_id'])
@@ -39,15 +47,50 @@ class WebpData {
         return self::$db;
     }
 
-    public static function create(int $attachment_id, bool $compressed, string $webp_url) {
+    private static function create_entry(int $attachment_id, bool $compressed, string $webp_url, string $size_urls) {
         self::db()::insert(self::$db_name, [[
             'attachment_id' => $attachment_id,
             'compressed' => $compressed,
             'webp_url' => $webp_url,
+            'size_urls' => $size_urls,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
         ]]);
         pp_do_action('webp-easy/webp-data/created', $attachment_id, $compressed, $webp_url);
+
+        return self::get($attachment_id);
+    }
+
+    public static function create(int $attachment_id) {
+        $settings = pp_get_settings();
+        $converter = new WebpConverter();
+
+        if(WebpMediaLibrary::is_converted($attachment_id)) {
+            Logging::error('Webp data already exists for attachment', ['attachment_id' => $attachment_id]	);
+            return;
+        }
+
+        $inputs = WebpMediaLibrary::get_paths($attachment_id);
+        $outputs = array();
+
+        foreach($inputs as $image_size => $item) {
+            $input = $item[0];
+            $output = $item[1];
+            $o = $converter->convert($input, $output,$settings['compression_enabled'] ? $settings['compression_quality'] : 100);
+
+            if ($o === null) {
+                continue;
+            }
+            $outputs[$image_size] = WebpMediaLibrary::path_to_url($output);
+        }
+
+        if(count($outputs) === 0) {
+            return;
+        }
+
+        $webp_url = $outputs['full'];
+
+        return self::create_entry($attachment_id, $settings['compression_enabled'], $webp_url, implode(',', $outputs));       
     }
 
     public static function delete(int $attachment_id) {
@@ -72,6 +115,7 @@ class WebpData {
         $webp_data->attachment_id = $result['attachment_id'];
         $webp_data->compressed = $result['compressed'];
         $webp_data->webp_url = $result['webp_url'];
+        $webp_data->size_urls = $result['size_urls'];
         $webp_data->created_at = $result['created_at'];
         $webp_data->updated_at = $result['updated_at'];
         return $webp_data;

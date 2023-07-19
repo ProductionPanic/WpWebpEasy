@@ -61,10 +61,43 @@ class WebpMediaLibrary {
         $webp_urls = array();
 
         foreach($image_urls as $image_size => $image_url) {
-            $webp_urls[$image_size] = self::get_webp_url_from_image_url($image_url);
+            $webp_urls[$image_size] = [
+                $image_url,
+                self::get_webp_url_from_image_url($image_url),
+            ];
         }
 
         return $webp_urls;
+    }
+
+    public static function get_paths($attachment_id) {
+        $urls = self::get_webp_urls($attachment_id);
+        $now = wp_upload_dir()['baseurl'];
+        $repl = wp_upload_dir()['basedir'];
+        
+        $paths = array();   
+        foreach($urls as $image_size => $urls) {
+            $paths[$image_size] = [
+                str_replace($now, $repl, $urls[0]),
+                str_replace($now, $repl, $urls[1]),
+            ];
+        }
+
+        return $paths;
+    }
+
+    public static function path_to_url($path) {
+        $now = wp_upload_dir()['basedir'];
+        $repl = wp_upload_dir()['baseurl'];
+
+        return str_replace($now, $repl, $path);
+    }
+
+    public static function url_to_path($url) {
+        $now = wp_upload_dir()['baseurl'];
+        $repl = wp_upload_dir()['basedir'];
+
+        return str_replace($now, $repl, $url);
     }
 
     public static function get_webp_urls_from_url($url) {

@@ -40,6 +40,11 @@ $cssFiles = array_filter($manifest,fn($i) => str_ends_with($i['file'], '.css'));
 $cssFiles = array_map(fn($i) => $i['file'], $cssFiles);
 
 add_action('admin_enqueue_scripts', function () use ($entryFiles, $buildurl, $cssFiles) {
+    $page = get_current_screen();
+    if ($page->base !== 'toplevel_page_webp-easy' && $page->base  !== 'webp-easy_page_webp-easy-settings') {
+        return;
+    }
+
     foreach ($entryFiles as $entryFile) {
         $path = $buildurl . $entryFile;
         wp_enqueue_script('webp-easy', $path, [], '1.0.0', true);

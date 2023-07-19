@@ -1,7 +1,12 @@
 <?php 
+use ProductionPanic\WebpEasy\Backend\Logging;
+use ProductionPanic\WebpEasy\Modules\WebpData;
 /**
  * Actions and filters
  */
+
+ Logging::init();
+ WebpData::init();
 function pp_action(string $action, int $priority = 10, int $accepted_args = 1) {
     $action = panic_webp_action_prefix . $action;
     add_action($action, $action, $priority, $accepted_args);   
@@ -51,4 +56,13 @@ function pp_log($data) {
     }
 
     echo "<script>console.log(" . json_encode($data) . ")</script>";
+}
+
+function pp_get_settings() {
+    return get_option('webp-easy-settings', [
+        'webp_enabled' => false,
+        'compression_enabled' => false,
+        'compression_quality' => 90,
+        'autoconvert_new_images' => false,
+    ]);
 }
